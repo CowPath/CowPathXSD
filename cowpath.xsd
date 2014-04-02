@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2011 rel. 2 (http://www.altova.com) by TeaM DJiNN (TeaM DJiNN) -->
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:scxml="http://www.w3.org/2005/07/scxml" targetNamespace="http://www.w3.org/2005/07/scxml">
+	<element name="scxml">
+		<complexType>
+			<choice minOccurs="1" maxOccurs="unbounded">
+				<element ref="scxml:webflow" minOccurs="1" maxOccurs="1"/>
+				<element ref="scxml:preview" minOccurs="0" maxOccurs="unbounded"/>
+			</choice>
+			<attribute name="version" type="string" fixed="1.0"/>
+			<attribute name="clock" type="boolean" use="required"/>
+			<attribute name="notes" type="boolean" use="required"/>
+			<attribute name="initial" type="anyURI" use="optional"/>
+			<attribute name="name" type="string" use="optional"/>
+			<attribute name="previewEnable" type="boolean" use="required"/>
+			<attribute name="producerEmail" type="string" use="optional"/>
+		</complexType>
+		<key name="stateKey">
+			<selector xpath="scxml:webflow/scxml:state|scxml:webflow/scxml:state/scxml:state"/>
+			<field xpath="@id"/>
+		</key>
+		<keyref name="targetKey" refer="scxml:stateKey">
+			<selector xpath="scxml:webflow/scxml:state/scxml:transition|scxml:webflow/scxml:state/scxml:state/scxml:transition"/>
+			<field xpath="@target"/>
+		</keyref>
+		<keyref name="initialKey" refer="scxml:stateKey">
+			<selector xpath="scxml:webflow|scxml:webflow/scxml:state"/>
+			<field xpath="@initial"/>
+		</keyref>
+	</element>
+	<element name="preview">
+	</element>
+	<element name="state">
+		<complexType>
+			<choice minOccurs="0" maxOccurs="unbounded">
+				<element ref="scxml:onentry" minOccurs="0" maxOccurs="1"/>
+				<element ref="scxml:transition" minOccurs="0"/>
+				<element ref="scxml:state" minOccurs="0"/>
+			</choice>
+			<attribute name="id" type="anyURI" use="required"/>
+			<attribute name="initial" type="anyURI"/>
+			<attribute name="structuralPattern" type="string"/>
+			<attribute name="URLPattern" type="string"/>
+		</complexType>
+		<unique name="stateStructureContentUniques">
+			<selector xpath=".//scxml:state"/>
+			<field xpath="@id"/>
+		</unique>
+		<unique name="stateTransitionCondUniques">
+			<selector xpath="scxml:state/scxml:transition"/>
+			<field xpath="@cond"/>
+			<field xpath="@event"/>
+		</unique>
+	</element>
+	<element name="onentry">
+		<complexType>
+			<group ref="scxml:executablecontent" minOccurs="0" maxOccurs="1"/>
+		</complexType>
+	</element>
+	<element name="transition">
+		<complexType>
+			<sequence>
+				<group ref="scxml:executablecontent" minOccurs="0" maxOccurs="1"/>
+			</sequence>
+			<attribute name="event" type="scxml:eventType"/>
+			<attribute name="cond" type="scxml:cond"/>
+			<attribute name="target" type="anyURI"/>
+			<attribute name="anchor" type="string"/>
+		</complexType>
+	</element>
+	<element name="webflow">
+		<complexType>
+			<choice minOccurs="0" maxOccurs="unbounded">
+				<element ref="scxml:onentry" minOccurs="0" maxOccurs="1"/>
+				<element ref="scxml:state" minOccurs="0" maxOccurs="unbounded"/>
+			</choice>
+			<attribute name="id" type="string" use="required"/>
+			<attribute name="initial" type="anyURI" use="optional"/>
+			<attribute name="src" type="anyURI"/>
+			<attribute name="task" type="boolean"/>
+		</complexType>
+	</element>
+	<simpleType name="cond">
+		<restriction base="string">
+			<pattern value="\[&apos;.+&apos;\]"/>
+			<pattern value="\[&apos;split\(&apos;.+&apos;,&apos;.+&apos;\)\]"/>
+			<!-- \['.+'\] -->
+			<!-- \['split\('.+','.+'\)\] -->
+		</restriction>
+	</simpleType>
+	<element name="script">
+		<simpleType>
+			<restriction base="string">
+				<pattern value="(((GoTo\(&quot;[^&quot;]+&quot;\))|(Click\(&quot;[^&quot;]+&quot;\))|(Script\(&quot;[^&quot;]+&quot;\))|(Paste\(&quot;$[^&quot;]+&quot;\)\.Into\(&quot;[^&quot;]+&quot;\)))\.?)+;?"/>
+				<pattern value="((Copy\(&quot;[^&quot;]+&quot;,&quot;[^&quot;]+&quot;\)\.Into\(&quot;$[^&quot;]+&quot;\))|(Copy\(&quot;[^&quot;]+&quot;\)\.Into\(&quot;$[^&quot;]+&quot;\))\.?)+;?"/>
+			</restriction>
+		</simpleType>
+	</element>	
+	<element name="event">
+		<complexType>
+			<attribute name="name" type="string"/>
+		</complexType>
+	</element>
+	<!-- all declarations for executable content go in this group -->
+	<!-- those elements are declared after this group -->
+	<group name="executablecontent">
+		<choice>
+			<element ref="scxml:script" minOccurs="0" maxOccurs="1"/>
+		</choice>
+	</group>
+	<simpleType name="xpathExpr">
+		<restriction base="string"/>
+	</simpleType>
+	<simpleType name="eventType">
+		<restriction base="string">
+			<enumeration value="COWPATH:CLICK"/>
+			<enumeration value="HOST:CLICK"/>
+		</restriction>
+	</simpleType>
+</schema>
